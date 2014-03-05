@@ -294,6 +294,30 @@ int git_config_add_backend(
 	return 0;
 }
 
+static int config_lock(git_config *cfg, int lock)
+{
+	int error = 0;
+	size_t i;
+
+	for (i = 0; i < cfg->files.length && !error; ++i) {
+		file_internal *internal = git_vector_get(&cfg->files, i);
+		git_config_backend *file = internal->file;
+		error = file->lock(file, lock);
+	}
+
+	return error;
+}
+
+int git_config__lock(git_config *cfg)
+{
+	return config_lock(cfg, 1);
+}
+
+int git_config__unlock(git_config *cfg)
+{
+	return config_lock(cfg, 0);
+}
+
 int git_config_refresh(git_config *cfg)
 {
 	int error = 0;

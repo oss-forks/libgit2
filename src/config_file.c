@@ -96,6 +96,8 @@ typedef struct {
 	char  *file_path;
 
 	git_config_level_t level;
+
+	git_atomic modify_lock;
 } diskfile_backend;
 
 static int config_parse(diskfile_backend *cfg_file, struct reader *reader, git_config_level_t level, int depth);
@@ -183,6 +185,8 @@ static int config_open(git_config_backend *cfg, git_config_level_t level)
 	b->values = git_strmap_alloc();
 	GITERR_CHECK_ALLOC(b->values);
 
+	git_atomic_set(&b->modify_lock, 0);
+
 	git_array_init(b->readers);
 	reader = git_array_alloc(b->readers);
 	memset(reader, 0, sizeof(struct reader));
@@ -208,6 +212,20 @@ static int config_open(git_config_backend *cfg, git_config_level_t level)
 	return res;
 }
 
+static int config_lock(git_config_backend *cfg, int lock)
+{
+	diskfile_backend *b = (diskfile_backend *)cfg;
+
+	if (lock)
+		git_atomic_inc(&b->modify_lock);
+	else
+		git_atomic_dec(&b->modify_lock);
+
+	assert(b->modify_lock.val >= 0);
+
+	return 0;
+}
+
 static int config_refresh(git_config_backend *cfg)
 {
 	int res = 0, updated = 0, any_updated = 0;
@@ -215,6 +233,11 @@ static int config_refresh(git_config_backend *cfg)
 	git_strmap *old_values;
 	struct reader *reader;
 	uint32_t i;
+
+	if (b->modify_lock.val) {
+		giterr_set(GITERR_CONFIG, "cannot refresh, the configuration is locked");
+		return GIT_ELOCKED;
+	}
 
 	for (i = 0; i < git_array_size(b->readers); i++) {
 		reader = git_array_get(b->readers, i);
@@ -636,6 +659,7 @@ int git_config_file__ondisk(git_config_backend **out, const char *path)
 	backend->parent.del = config_delete;
 	backend->parent.del_multivar = config_delete_multivar;
 	backend->parent.iterator = config_iterator_new;
+	backend->parent.lock = config_lock;
 	backend->parent.refresh = config_refresh;
 	backend->parent.free = backend_free;
 

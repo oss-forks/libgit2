@@ -63,6 +63,8 @@ struct git_config_backend {
 	int (*del)(struct git_config_backend *, const char *key);
 	int (*del_multivar)(struct git_config_backend *, const char *key, const char *regexp);
 	int (*iterator)(git_config_iterator **, struct git_config_backend *);
+	/** Lock or unlock refreshing the backend */
+	int (*lock)(struct git_config_backend *, int lock);
 	int (*refresh)(struct git_config_backend *);
 	void (*free)(struct git_config_backend *);
 };

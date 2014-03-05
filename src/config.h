@@ -51,5 +51,15 @@ extern int git_config_file__ondisk(git_config_backend **out, const char *path);
 
 extern int git_config__normalize_name(const char *in, char **out);
 
+/**
+ * Lock the configuration
+ *
+ * Do not allow the configuration to be refreshed even if the file has
+ * changed. This should be used when you're reading complex configs
+ * (e.g. remote or submodule)
+ */
+extern int git_config__lock(git_config *cfg);
+extern int git_config__unlock(git_config *cfg);
+
 
 #endif
