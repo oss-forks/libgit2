@@ -97,7 +97,10 @@ typedef struct {
 
 	git_config_level_t level;
 
+	/* Counts how many people want the config not to change */
 	git_atomic modify_lock;
+	/* Lock for updating when there's no active readers */
+	git_rwlock lock;
 } diskfile_backend;
 
 static int config_parse(diskfile_backend *cfg_file, struct reader *reader, git_config_level_t level, int depth);
@@ -181,6 +184,11 @@ static int config_open(git_config_backend *cfg, git_config_level_t level)
 	diskfile_backend *b = (diskfile_backend *)cfg;
 
 	b->level = level;
+
+	if (git_rwlock_init(&b->lock) < 0) {
+		giterr_set(GITERR_OS, "failed to read-lock config");
+		return -1;
+	}
 
 	b->values = git_strmap_alloc();
 	GITERR_CHECK_ALLOC(b->values);
@@ -284,6 +292,7 @@ static void backend_free(git_config_backend *_backend)
 	}
 	git_array_clear(backend->readers);
 
+	git_rwlock_free(&backend->lock);
 	git__free(backend->file_path);
 	free_vars(backend->values);
 	git__free(backend);
@@ -432,18 +441,22 @@ static int config_get(const git_config_backend *cfg, const char *name, const git
 	diskfile_backend *b = (diskfile_backend *)cfg;
 	char *key;
 	khiter_t pos;
-	int error;
+	int error = 0;
 	cvar_t *var;
 
 	if ((error = git_config__normalize_name(name, &key)) < 0)
 		return error;
 
+	git_rwlock_rdlock(&b->lock);
+
 	pos = git_strmap_lookup_index(b->values, key);
 	git__free(key);
 
 	/* no error message; the config system will write one */
-	if (!git_strmap_valid_index(b->values, pos))
-		return GIT_ENOTFOUND;
+	if (!git_strmap_valid_index(b->values, pos)) {
+		error = GIT_ENOTFOUND;
+		goto out;
+	}
 
 	var = git_strmap_value_at(b->values, pos);
 	while (var->next)
@@ -451,7 +464,9 @@ static int config_get(const git_config_backend *cfg, const char *name, const git
 
 	*out = var->entry;
 
-	return 0;
+out:
+	git_rwlock_rdunlock(&b->lock);
+	return error;
 }
 
 static int config_set_multivar(
