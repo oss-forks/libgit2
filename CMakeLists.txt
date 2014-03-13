@@ -60,7 +60,6 @@ ENDIF()
 ## Compilation
 
 SET(WIN32_SOURCES
-	src/hash/hash_win32.c
 	src/transports/winhttp.c
 	src/win32/dir.c
 	src/win32/dir.h
