@@ -72,7 +72,6 @@ SET(WIN32_SOURCES
 	src/win32/msvc-compat.h
 	src/win32/posix.h
 	src/win32/posix_w32.c
-	src/win32/precompiled.c
 	src/win32/precompiled.h
 	src/win32/pthread.c
 	src/win32/pthread.h
