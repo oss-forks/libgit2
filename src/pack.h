@@ -8,9 +8,13 @@
 #ifndef INCLUDE_pack_h__
 #define INCLUDE_pack_h__
 
+#ifdef ZLIB_ZLIB_H
+#include ZLIB_ZLIB_H
+#else
 #include <zlib.h>
+#endif
 
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 
 #include "common.h"
 #include "map.h"

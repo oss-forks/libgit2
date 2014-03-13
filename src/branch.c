@@ -13,7 +13,7 @@
 #include "refs.h"
 #include "remote.h"
 
-#include "git2/branch.h"
+#include "../include/git2/branch.h"
 
 static int retrieve_branch_reference(
 	git_reference **branch_reference_out,

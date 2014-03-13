@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2.h"
+#include "../include/git2.h"
 
 #include "common.h"
 #include "pack.h"

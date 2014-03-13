@@ -5,7 +5,11 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
+#ifdef ZLIB_ZLIB_H
+#include ZLIB_ZLIB_H
+#else
 #include <zlib.h>
+#endif
 
 #include "zstream.h"
 #include "buffer.h"

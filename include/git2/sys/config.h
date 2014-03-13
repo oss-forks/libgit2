@@ -7,9 +7,9 @@
 #ifndef INCLUDE_sys_git_config_backend_h__
 #define INCLUDE_sys_git_config_backend_h__
 
-#include "git2/common.h"
-#include "git2/types.h"
-#include "git2/config.h"
+#include "../common.h"
+#include "../types.h"
+#include "../config.h"
 
 /**
  * @file git2/sys/config.h

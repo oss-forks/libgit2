@@ -5,10 +5,10 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/config.h"
-#include "git2/types.h"
-#include "git2/oid.h"
-#include "git2/net.h"
+#include "../include/git2/config.h"
+#include "../include/git2/types.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/net.h"
 
 #include "common.h"
 #include "config.h"

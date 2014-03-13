@@ -7,7 +7,7 @@
 #ifndef INCLUDE_oid_h__
 #define INCLUDE_oid_h__
 
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 
 GIT_INLINE(int) git_oid__hashcmp(const unsigned char *sha1, const unsigned char *sha2)
 {

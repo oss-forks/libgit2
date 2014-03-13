@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/sys/filter.h"
+#include "../include/git2/sys/filter.h"
 #include "filter.h"
 #include "buffer.h"
 #include "buf_text.h"

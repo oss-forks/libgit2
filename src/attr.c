@@ -4,7 +4,7 @@
 #include "config.h"
 #include "attr_file.h"
 #include "ignore.h"
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 #include <ctype.h>
 
 GIT__USE_STRMAP;

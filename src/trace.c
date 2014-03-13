@@ -9,7 +9,7 @@
 #include "common.h"
 #include "global.h"
 #include "trace.h"
-#include "git2/trace.h"
+#include "../include/git2/trace.h"
 
 #ifdef GIT_TRACE
 

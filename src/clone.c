@@ -7,14 +7,14 @@
 
 #include <assert.h>
 
-#include "git2/clone.h"
-#include "git2/remote.h"
-#include "git2/revparse.h"
-#include "git2/branch.h"
-#include "git2/config.h"
-#include "git2/checkout.h"
-#include "git2/commit.h"
-#include "git2/tree.h"
+#include "../include/git2/clone.h"
+#include "../include/git2/remote.h"
+#include "../include/git2/revparse.h"
+#include "../include/git2/branch.h"
+#include "../include/git2/config.h"
+#include "../include/git2/checkout.h"
+#include "../include/git2/commit.h"
+#include "../include/git2/tree.h"
 
 #include "common.h"
 #include "remote.h"

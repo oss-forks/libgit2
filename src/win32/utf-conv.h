@@ -8,7 +8,7 @@
 #define INCLUDE_git_utfconv_h__
 
 #include <wchar.h>
-#include "common.h"
+#include "../common.h"
 
 /* Equal to the Win32 MAX_PATH constant. The maximum path length is 259
  * characters plus a NULL terminator. */

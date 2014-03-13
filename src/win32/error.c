@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "error.h"
 #include "utf-conv.h"
 

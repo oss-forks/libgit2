@@ -10,10 +10,10 @@
 #include "tag.h"
 #include "signature.h"
 #include "message.h"
-#include "git2/object.h"
-#include "git2/repository.h"
-#include "git2/signature.h"
-#include "git2/odb_backend.h"
+#include "../include/git2/object.h"
+#include "../include/git2/repository.h"
+#include "../include/git2/signature.h"
+#include "../include/git2/odb_backend.h"
 
 void git_tag__free(void *_tag)
 {

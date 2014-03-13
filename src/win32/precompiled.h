@@ -11,13 +11,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <regex.h>
+#include "../../deps/regex/regex.h"
 
 #include <io.h>
 #include <direct.h>
 #ifdef GIT_THREADS
- #include "win32/pthread.h"
+ #include "pthread.h"
 #endif
 
-#include "git2.h"
-#include "common.h"
+#include "../../include/git2.h"
+#include "../common.h"

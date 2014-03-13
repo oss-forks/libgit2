@@ -8,7 +8,7 @@
 #define INCLUDE_filter_h__
 
 #include "common.h"
-#include "git2/filter.h"
+#include "../include/git2/filter.h"
 
 /* Amount of file to examine for NUL byte when checking binary-ness */
 #define GIT_FILTER_BYTES_TO_CHECK_NUL 8000

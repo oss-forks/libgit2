@@ -6,18 +6,18 @@
  */
 
 #include "common.h"
-#include "git2.h"
+#include "../include/git2.h"
 #include "fileops.h"
 #include "hash.h"
 #include "vector.h"
 #include "tree.h"
 #include "status.h"
-#include "git2/status.h"
+#include "../include/git2/status.h"
 #include "repository.h"
 #include "ignore.h"
 #include "index.h"
 
-#include "git2/diff.h"
+#include "../include/git2/diff.h"
 #include "diff.h"
 
 static unsigned int index_delta2status(const git_diff_delta *head2idx)

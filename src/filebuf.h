@@ -9,7 +9,11 @@
 
 #include "fileops.h"
 #include "hash.h"
+#ifdef ZLIB_ZLIB_H
+#include ZLIB_ZLIB_H
+#else
 #include <zlib.h>
+#endif
 
 #ifdef GIT_THREADS
 #	define GIT_FILEBUF_THREADS

@@ -7,7 +7,7 @@
 #ifndef INCLUDE_refdb_h__
 #define INCLUDE_refdb_h__
 
-#include "git2/refdb.h"
+#include "../include/git2/refdb.h"
 #include "repository.h"
 
 struct git_refdb {

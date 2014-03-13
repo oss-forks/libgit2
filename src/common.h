@@ -7,7 +7,7 @@
 #ifndef INCLUDE_common_h__
 #define INCLUDE_common_h__
 
-#include "git2/common.h"
+#include "../include/git2/common.h"
 #include "cc-compat.h"
 
 /** Declare a function as always inlined. */
@@ -55,12 +55,12 @@
 
 #endif
 
-#include "git2/types.h"
-#include "git2/errors.h"
+#include "../include/git2/types.h"
+#include "../include/git2/errors.h"
 #include "thread-utils.h"
 #include "bswap.h"
 
-#include <regex.h>
+#include "../deps/regex/regex.h"
 
 /**
  * Check a pointer allocation result, returning -1 if it failed.

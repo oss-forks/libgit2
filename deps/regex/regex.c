@@ -63,7 +63,7 @@
 #undef alloca
 #define alloca alloca_is_bad_you_should_never_use_it
 #endif
-#include <regex.h>
+#include "regex.h"
 #include "regex_internal.h"
 
 #include "regex_internal.c"

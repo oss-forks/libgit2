@@ -5,10 +5,10 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/attr.h"
-#include "git2/blob.h"
-#include "git2/index.h"
-#include "git2/sys/filter.h"
+#include "../include/git2/attr.h"
+#include "../include/git2/blob.h"
+#include "../include/git2/index.h"
+#include "../include/git2/sys/filter.h"
 
 #include "common.h"
 #include "fileops.h"

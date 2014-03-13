@@ -8,9 +8,13 @@
 #ifndef INCLUDE_hash_openssl_h__
 #define INCLUDE_hash_openssl_h__
 
-#include "hash.h"
+#include "../hash.h"
 
+#ifdef OPENSSL_SHA_H
+#include OPENSSL_SHA_H
+#else
 #include <openssl/sha.h>
+#endif
 
 struct git_hash_ctx {
 	SHA_CTX c;

@@ -11,7 +11,11 @@
 #include "common.h"
 
 #ifdef GIT_SSL
+# ifdef OPENSSL_SSL_H
+# include OPENSSL_SSL_H
+# else
 # include <openssl/ssl.h>
+# endif
 #endif
 
 struct gitno_ssl {

@@ -11,7 +11,7 @@
 #include "pool.h"
 
 #include "revwalk.h"
-#include "git2/revparse.h"
+#include "../include/git2/revparse.h"
 #include "merge.h"
 
 git_commit_list_node *git_revwalk__commit_lookup(

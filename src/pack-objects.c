@@ -16,11 +16,11 @@
 #include "tree.h"
 #include "util.h"
 
-#include "git2/pack.h"
-#include "git2/commit.h"
-#include "git2/tag.h"
-#include "git2/indexer.h"
-#include "git2/config.h"
+#include "../include/git2/pack.h"
+#include "../include/git2/commit.h"
+#include "../include/git2/tag.h"
+#include "../include/git2/indexer.h"
+#include "../include/git2/config.h"
 
 struct unpacked {
 	git_pobject *object;

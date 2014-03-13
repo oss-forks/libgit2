@@ -7,9 +7,9 @@
 #ifndef INCLUDE_sys_git_refdb_backend_h__
 #define INCLUDE_sys_git_refdb_backend_h__
 
-#include "git2/common.h"
-#include "git2/types.h"
-#include "git2/oid.h"
+#include "../common.h"
+#include "../types.h"
+#include "../oid.h"
 
 /**
  * @file git2/refdb_backend.h

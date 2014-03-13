@@ -7,9 +7,9 @@
 #ifndef INCLUDE_cache_h__
 #define INCLUDE_cache_h__
 
-#include "git2/common.h"
-#include "git2/oid.h"
-#include "git2/odb.h"
+#include "../include/git2/common.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/odb.h"
 
 #include "thread-utils.h"
 #include "oidmap.h"

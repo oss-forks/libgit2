@@ -6,10 +6,14 @@
  */
 
 #include "common.h"
+#ifdef ZLIB_ZLIB_H
+#include ZLIB_ZLIB_H
+#else
 #include <zlib.h>
-#include "git2/repository.h"
-#include "git2/indexer.h"
-#include "git2/sys/odb_backend.h"
+#endif
+#include "../include/git2/repository.h"
+#include "../include/git2/indexer.h"
+#include "../include/git2/sys/odb_backend.h"
 #include "fileops.h"
 #include "hash.h"
 #include "odb.h"
@@ -18,7 +22,7 @@
 #include "mwindow.h"
 #include "pack.h"
 
-#include "git2/odb_backend.h"
+#include "../include/git2/odb_backend.h"
 
 struct pack_backend {
 	git_odb_backend parent;

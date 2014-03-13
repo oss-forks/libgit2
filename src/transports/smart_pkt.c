@@ -5,18 +5,18 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "common.h"
+#include "../common.h"
 
-#include "git2/types.h"
-#include "git2/errors.h"
-#include "git2/refs.h"
-#include "git2/revwalk.h"
+#include "../../include/git2/types.h"
+#include "../../include/git2/errors.h"
+#include "../../include/git2/refs.h"
+#include "../../include/git2/revwalk.h"
 
 #include "smart.h"
-#include "util.h"
-#include "netops.h"
-#include "posix.h"
-#include "buffer.h"
+#include "../util.h"
+#include "../netops.h"
+#include "../posix.h"
+#include "../buffer.h"
 
 #include <ctype.h>
 

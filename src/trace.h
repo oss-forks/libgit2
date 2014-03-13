@@ -7,7 +7,7 @@
 #ifndef INCLUDE_trace_h__
 #define INCLUDE_trace_h__
 
-#include <git2/trace.h>
+#include "../include/git2/trace.h"
 #include "buffer.h"
 
 #ifdef GIT_TRACE

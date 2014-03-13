@@ -9,6 +9,6 @@
 
 #include "xdiff/xdiff.h"
 
-#include "git2/merge.h"
+#include "../include/git2/merge.h"
 
 #endif

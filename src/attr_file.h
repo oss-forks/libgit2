@@ -7,8 +7,8 @@
 #ifndef INCLUDE_attr_file_h__
 #define INCLUDE_attr_file_h__
 
-#include "git2/oid.h"
-#include "git2/attr.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/attr.h"
 #include "vector.h"
 #include "pool.h"
 #include "buffer.h"

@@ -6,10 +6,10 @@
  */
 #ifndef GIT_WINHTTP
 
-#include "git2.h"
-#include "http_parser.h"
-#include "buffer.h"
-#include "netops.h"
+#include "../../include/git2.h"
+#include "../../deps/http-parser/http_parser.h"
+#include "../buffer.h"
+#include "../netops.h"
 #include "smart.h"
 
 static const char *upload_pack_service = "upload-pack";

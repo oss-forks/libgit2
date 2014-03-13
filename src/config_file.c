@@ -11,15 +11,15 @@
 #include "sysdir.h"
 #include "buffer.h"
 #include "buf_text.h"
-#include "git2/config.h"
-#include "git2/sys/config.h"
-#include "git2/types.h"
+#include "../include/git2/config.h"
+#include "../include/git2/sys/config.h"
+#include "../include/git2/types.h"
 #include "strmap.h"
 #include "array.h"
 
 #include <ctype.h>
 #include <sys/types.h>
-#include <regex.h>
+#include "../deps/regex/regex.h"
 
 GIT__USE_STRMAP;
 

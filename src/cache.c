@@ -13,7 +13,7 @@
 #include "cache.h"
 #include "odb.h"
 #include "object.h"
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 
 GIT__USE_OIDMAP
 

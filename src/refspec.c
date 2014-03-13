@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/errors.h"
+#include "../include/git2/errors.h"
 
 #include "common.h"
 #include "refspec.h"

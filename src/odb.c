@@ -6,9 +6,13 @@
  */
 
 #include "common.h"
+#ifdef ZLIB_ZLIB_H
 #include <zlib.h>
-#include "git2/object.h"
-#include "git2/sys/odb_backend.h"
+#else
+#include ZLIB_ZLIB_H
+#endif
+#include "../include/git2/object.h"
+#include "../include/git2/sys/odb_backend.h"
 #include "fileops.h"
 #include "hash.h"
 #include "odb.h"
@@ -16,8 +20,8 @@
 #include "filter.h"
 #include "repository.h"
 
-#include "git2/odb_backend.h"
-#include "git2/oid.h"
+#include "../include/git2/odb_backend.h"
+#include "../include/git2/oid.h"
 
 #define GIT_ALTERNATES_FILE "info/alternates"
 

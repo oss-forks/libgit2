@@ -6,9 +6,9 @@
  */
 #include "../posix.h"
 #include "../fileops.h"
-#include "path.h"
+#include "../path.h"
 #include "utf-conv.h"
-#include "repository.h"
+#include "../repository.h"
 #include "reparse.h"
 #include <errno.h>
 #include <io.h>

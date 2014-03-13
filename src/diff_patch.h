@@ -11,7 +11,7 @@
 #include "diff.h"
 #include "diff_file.h"
 #include "array.h"
-#include "git2/patch.h"
+#include "../include/git2/patch.h"
 
 extern git_diff *git_patch__diff(git_patch *);
 

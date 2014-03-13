@@ -6,8 +6,8 @@
  */
 #include "common.h"
 
-#include "git2/config.h"
-#include "git2/blob.h"
+#include "../include/git2/config.h"
+#include "../include/git2/blob.h"
 
 #include "diff.h"
 #include "hashsig.h"

@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 #define GIT__WIN32_NO_WRAP_DIR
-#include "posix.h"
+#include "../posix.h"
 
 git__DIR *git__opendir(const char *dir)
 {

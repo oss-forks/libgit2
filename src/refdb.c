@@ -8,10 +8,10 @@
 #include "common.h"
 #include "posix.h"
 
-#include "git2/object.h"
-#include "git2/refs.h"
-#include "git2/refdb.h"
-#include "git2/sys/refdb_backend.h"
+#include "../include/git2/object.h"
+#include "../include/git2/refs.h"
+#include "../include/git2/refdb.h"
+#include "../include/git2/sys/refdb_backend.h"
 
 #include "hash.h"
 #include "refdb.h"

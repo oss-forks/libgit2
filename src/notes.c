@@ -7,7 +7,7 @@
 
 #include "notes.h"
 
-#include "git2.h"
+#include "../include/git2.h"
 #include "refs.h"
 #include "config.h"
 #include "iterator.h"

@@ -7,14 +7,14 @@
 
 #ifdef GIT_WINHTTP
 
-#include "git2.h"
-#include "git2/transport.h"
-#include "buffer.h"
-#include "posix.h"
-#include "netops.h"
+#include "../../include/git2.h"
+#include "../../include/git2/transport.h"
+#include "../buffer.h"
+#include "../posix.h"
+#include "../netops.h"
 #include "smart.h"
-#include "remote.h"
-#include "repository.h"
+#include "../remote.h"
+#include "../repository.h"
 
 #include <winhttp.h>
 #pragma comment(lib, "winhttp")

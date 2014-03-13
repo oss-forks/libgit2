@@ -9,7 +9,7 @@
 #define INCLUDE_tree_cache_h__
 
 #include "common.h"
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 
 struct git_tree_cache {
 	struct git_tree_cache *parent;

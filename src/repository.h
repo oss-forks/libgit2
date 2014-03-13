@@ -7,12 +7,12 @@
 #ifndef INCLUDE_repository_h__
 #define INCLUDE_repository_h__
 
-#include "git2/common.h"
-#include "git2/oid.h"
-#include "git2/odb.h"
-#include "git2/repository.h"
-#include "git2/object.h"
-#include "git2/config.h"
+#include "../include/git2/common.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/odb.h"
+#include "../include/git2/repository.h"
+#include "../include/git2/object.h"
+#include "../include/git2/config.h"
 
 #include "cache.h"
 #include "refs.h"

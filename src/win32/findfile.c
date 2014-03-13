@@ -6,7 +6,7 @@
  */
 
 #include "utf-conv.h"
-#include "path.h"
+#include "../path.h"
 #include "findfile.h"
 
 #define REG_MSYSGIT_INSTALL_LOCAL L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Git_is1"

@@ -12,7 +12,7 @@
 #include "tree.h"
 #include "refdb.h"
 
-#include "git2.h"
+#include "../include/git2.h"
 
 static int maybe_sha_or_abbrev(git_object** out, git_repository *repo, const char *spec, size_t speclen)
 {

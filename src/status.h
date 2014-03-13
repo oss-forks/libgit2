@@ -8,8 +8,8 @@
 #define INCLUDE_status_h__
 
 #include "diff.h"
-#include "git2/status.h"
-#include "git2/diff.h"
+#include "../include/git2/status.h"
+#include "../include/git2/diff.h"
 
 struct git_status_list {
 	git_status_options opts;

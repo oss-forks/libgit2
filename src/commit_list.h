@@ -7,7 +7,7 @@
 #ifndef INCLUDE_commit_list_h__
 #define INCLUDE_commit_list_h__
 
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 
 #define PARENT1  (1 << 0)
 #define PARENT2  (1 << 1)

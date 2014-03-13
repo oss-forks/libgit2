@@ -10,11 +10,11 @@
 #include "commit.h"
 #include "tree.h"
 #include "reflog.h"
-#include "git2/diff.h"
-#include "git2/stash.h"
-#include "git2/status.h"
-#include "git2/checkout.h"
-#include "git2/index.h"
+#include "../include/git2/diff.h"
+#include "../include/git2/stash.h"
+#include "../include/git2/status.h"
+#include "../include/git2/checkout.h"
+#include "../include/git2/index.h"
 #include "signature.h"
 
 static int create_error(int error, const char *msg)

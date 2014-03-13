@@ -6,7 +6,7 @@
  */
 #include "common.h"
 
-#include "git2/attr.h"
+#include "../include/git2/attr.h"
 
 #include "diff.h"
 #include "diff_patch.h"

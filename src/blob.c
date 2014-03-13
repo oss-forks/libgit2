@@ -5,10 +5,10 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/common.h"
-#include "git2/object.h"
-#include "git2/repository.h"
-#include "git2/odb_backend.h"
+#include "../include/git2/common.h"
+#include "../include/git2/object.h"
+#include "../include/git2/repository.h"
+#include "../include/git2/odb_backend.h"
 
 #include "common.h"
 #include "filebuf.h"

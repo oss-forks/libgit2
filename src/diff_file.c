@@ -5,8 +5,8 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 #include "common.h"
-#include "git2/blob.h"
-#include "git2/submodule.h"
+#include "../include/git2/blob.h"
+#include "../include/git2/submodule.h"
 #include "diff.h"
 #include "diff_file.h"
 #include "odb.h"

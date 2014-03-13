@@ -7,7 +7,7 @@
 
 #include "revwalk.h"
 #include "merge.h"
-#include "git2/graph.h"
+#include "../include/git2/graph.h"
 
 static int interesting(git_pqueue *list, git_commit_list *roots)
 {

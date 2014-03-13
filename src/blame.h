@@ -1,12 +1,12 @@
 #ifndef INCLUDE_blame_h__
 #define INCLUDE_blame_h__
 
-#include "git2/blame.h"
+#include "../include/git2/blame.h"
 #include "common.h"
 #include "vector.h"
 #include "diff.h"
 #include "array.h"
-#include "git2/oid.h"
+#include "../include/git2/oid.h"
 
 /*
  * One blob in a commit that is being suspected

@@ -8,7 +8,7 @@
 #ifndef INCLUDE_hash_generic_h__
 #define INCLUDE_hash_generic_h__
 
-#include "hash.h"
+#include "../hash.h"
 
 struct git_hash_ctx {
 	unsigned long long size;

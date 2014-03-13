@@ -18,11 +18,11 @@
 #include "ignore.h"
 #include "blob.h"
 
-#include "git2/odb.h"
-#include "git2/oid.h"
-#include "git2/blob.h"
-#include "git2/config.h"
-#include "git2/sys/index.h"
+#include "../include/git2/odb.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/blob.h"
+#include "../include/git2/config.h"
+#include "../include/git2/sys/index.h"
 
 #define entry_size(type,len) ((offsetof(type, path) + (len) + 8) & ~7)
 #define short_entry_size(len) entry_size(struct entry_short, len)

@@ -10,11 +10,11 @@
 #include "filebuf.h"
 #include "merge.h"
 
-#include "git2/types.h"
-#include "git2/merge.h"
-#include "git2/revert.h"
-#include "git2/commit.h"
-#include "git2/sys/commit.h"
+#include "../include/git2/types.h"
+#include "../include/git2/merge.h"
+#include "../include/git2/revert.h"
+#include "../include/git2/commit.h"
+#include "../include/git2/sys/commit.h"
 
 #define GIT_REVERT_FILE_MODE		0666
 

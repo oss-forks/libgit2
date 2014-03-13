@@ -11,8 +11,8 @@
 #include "commit_list.h"
 #include "pool.h"
 
-#include "git2/merge.h"
-#include "git2/types.h"
+#include "../include/git2/merge.h"
+#include "../include/git2/types.h"
 
 #define GIT_MERGE_MSG_FILE		"MERGE_MSG"
 #define GIT_MERGE_MODE_FILE		"MERGE_MODE"

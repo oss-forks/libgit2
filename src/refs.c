@@ -14,14 +14,14 @@
 #include "reflog.h"
 #include "refdb.h"
 
-#include <git2/tag.h>
-#include <git2/object.h>
-#include <git2/oid.h>
-#include <git2/branch.h>
-#include <git2/refs.h>
-#include <git2/refdb.h>
-#include <git2/sys/refs.h>
-#include <git2/signature.h>
+#include "../include/git2/tag.h"
+#include "../include/git2/object.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/branch.h"
+#include "../include/git2/refs.h"
+#include "../include/git2/refdb.h"
+#include "../include/git2/sys/refs.h"
+#include "../include/git2/signature.h"
 
 GIT__USE_STRMAP;
 

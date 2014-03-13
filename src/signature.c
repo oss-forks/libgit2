@@ -8,7 +8,7 @@
 #include "common.h"
 #include "signature.h"
 #include "repository.h"
-#include "git2/common.h"
+#include "../include/git2/common.h"
 #include "posix.h"
 
 void git_signature_free(git_signature *sig)

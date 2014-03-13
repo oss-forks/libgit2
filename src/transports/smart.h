@@ -4,11 +4,11 @@
  * This file is part of libgit2, distributed under the GNU GPL v2 with
  * a Linking Exception. For full terms see the included COPYING file.
  */
-#include "git2.h"
-#include "vector.h"
-#include "netops.h"
-#include "buffer.h"
-#include "push.h"
+#include "../../include/git2.h"
+#include "../vector.h"
+#include "../netops.h"
+#include "../buffer.h"
+#include "../push.h"
 
 #define GIT_SIDE_BAND_DATA     1
 #define GIT_SIDE_BAND_PROGRESS 2

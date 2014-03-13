@@ -7,7 +7,7 @@
 #ifndef INCLUDE_push_h__
 #define INCLUDE_push_h__
 
-#include "git2.h"
+#include "../include/git2.h"
 
 typedef struct push_spec {
 	char *lref;

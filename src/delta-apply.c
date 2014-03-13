@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 #include "common.h"
-#include "git2/odb.h"
+#include "../include/git2/odb.h"
 #include "delta-apply.h"
 
 /*

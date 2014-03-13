@@ -12,9 +12,9 @@
 #include "fileops.h"
 #include "index.h"
 
-#include "git2/repository.h"
-#include "git2/object.h"
-#include "git2/index.h"
+#include "../include/git2/repository.h"
+#include "../include/git2/object.h"
+#include "../include/git2/index.h"
 
 #include "xdiff/xdiff.h"
 

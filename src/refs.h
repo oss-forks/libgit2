@@ -8,9 +8,9 @@
 #define INCLUDE_refs_h__
 
 #include "common.h"
-#include "git2/oid.h"
-#include "git2/refs.h"
-#include "git2/refdb.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/refs.h"
+#include "../include/git2/refdb.h"
 #include "strmap.h"
 #include "buffer.h"
 #include "oid.h"

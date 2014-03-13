@@ -9,14 +9,14 @@
 
 #include "checkout.h"
 
-#include "git2/repository.h"
-#include "git2/refs.h"
-#include "git2/tree.h"
-#include "git2/blob.h"
-#include "git2/config.h"
-#include "git2/diff.h"
-#include "git2/submodule.h"
-#include "git2/sys/index.h"
+#include "../include/git2/repository.h"
+#include "../include/git2/refs.h"
+#include "../include/git2/tree.h"
+#include "../include/git2/blob.h"
+#include "../include/git2/config.h"
+#include "../include/git2/diff.h"
+#include "../include/git2/submodule.h"
+#include "../include/git2/sys/index.h"
 
 #include "refs.h"
 #include "repository.h"

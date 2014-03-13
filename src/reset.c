@@ -10,10 +10,10 @@
 #include "tag.h"
 #include "merge.h"
 #include "diff.h"
-#include "git2/reset.h"
-#include "git2/checkout.h"
-#include "git2/merge.h"
-#include "git2/refs.h"
+#include "../include/git2/reset.h"
+#include "../include/git2/checkout.h"
+#include "../include/git2/merge.h"
+#include "../include/git2/refs.h"
 
 #define ERROR_MSG "Cannot perform reset"
 

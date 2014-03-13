@@ -7,7 +7,7 @@
 #ifndef INCLUDE_checkout_h__
 #define INCLUDE_checkout_h__
 
-#include "git2/checkout.h"
+#include "../include/git2/checkout.h"
 #include "iterator.h"
 
 #define GIT_CHECKOUT__NOTIFY_CONFLICT_TREE (1u << 12)

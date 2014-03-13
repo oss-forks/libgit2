@@ -20,19 +20,25 @@
 #endif
 
 #ifdef GIT_SSL
+# ifdef OPENSSL_SSL_H
+# include OPENSSL_SSL_H
+# include OPENSSL_ERR_H
+# include OPENSSL_X509V3_H
+# else
 # include <openssl/ssl.h>
 # include <openssl/err.h>
 # include <openssl/x509v3.h>
+# endif
 #endif
 
 #include <ctype.h>
-#include "git2/errors.h"
+#include "../include/git2/errors.h"
 
 #include "common.h"
 #include "netops.h"
 #include "posix.h"
 #include "buffer.h"
-#include "http_parser.h"
+#include "../deps/http-parser/http_parser.h"
 #include "global.h"
 
 #ifdef GIT_WIN32

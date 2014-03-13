@@ -7,7 +7,11 @@
 #ifndef INCLUDE_zstream_h__
 #define INCLUDE_zstream_h__
 
+#ifdef ZLIB_ZLIB_H
+#include ZLIB_ZLIB_H
+#else
 #include <zlib.h>
+#endif
 
 #include "common.h"
 #include "buffer.h"

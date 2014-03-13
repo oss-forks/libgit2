@@ -11,8 +11,8 @@
 #include "filebuf.h"
 #include "vector.h"
 #include "tree-cache.h"
-#include "git2/odb.h"
-#include "git2/index.h"
+#include "../include/git2/odb.h"
+#include "../include/git2/index.h"
 
 #define GIT_INDEX_FILE "index"
 #define GIT_INDEX_FILE_MODE 0666

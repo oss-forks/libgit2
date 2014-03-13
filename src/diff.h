@@ -7,9 +7,9 @@
 #ifndef INCLUDE_diff_h__
 #define INCLUDE_diff_h__
 
-#include "git2/diff.h"
-#include "git2/sys/diff.h"
-#include "git2/oid.h"
+#include "../include/git2/diff.h"
+#include "../include/git2/sys/diff.h"
+#include "../include/git2/oid.h"
 
 #include <stdio.h>
 #include "vector.h"

@@ -6,17 +6,21 @@
  */
 
 #include "common.h"
+#ifdef ZLIB_ZLIB_H
+#include ZLIB_ZLIB_H
+#else
 #include <zlib.h>
-#include "git2/object.h"
-#include "git2/sys/odb_backend.h"
+#endif
+#include "../include/git2/object.h"
+#include "../include/git2/sys/odb_backend.h"
 #include "fileops.h"
 #include "hash.h"
 #include "odb.h"
 #include "delta-apply.h"
 #include "filebuf.h"
 
-#include "git2/odb_backend.h"
-#include "git2/types.h"
+#include "../include/git2/odb_backend.h"
+#include "../include/git2/types.h"
 
 typedef struct { /* object header data */
 	git_otype type; /* object type */

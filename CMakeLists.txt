@@ -1,490 +1,399 @@
-# CMake build script for the libgit2 project
-#
-# Building (out of source build):
-# > mkdir build && cd build
-# > cmake .. [-DSETTINGS=VALUE]
-# > cmake --build .
-#
-# Testing:
-# > ctest -V
-#
-# Install:
-# > cmake --build . --target install
 
-PROJECT(libgit2 C)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(libgit2)
 
-# Add find modules to the path
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+##################################################################################################################
+## Dependencies
+
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules/")
+
+FIND_PACKAGE(Threads)
+IF(CMAKE_USE_WIN32_THREADS_INIT OR CMAKE_USE_PTHREADS_INIT)
+	ADD_DEFINITIONS(-DGIT_THREADS)
+ENDIF()
+
+FIND_PACKAGE(OpenSSL REQUIRED)
+INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+INCLUDE("${OPENSSL_INCLUDE_DIR}/openssl.cmake" OPTIONAL)
+
+FIND_PACKAGE(ZLIB REQUIRED)
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+INCLUDE("${ZLIB_INCLUDE_DIRS}/zlib.cmake" OPTIONAL)
+
+FIND_PACKAGE(LIBSSH2 REQUIRED)
+INCLUDE_DIRECTORIES(${LIBSSH2_INCLUDE_DIR})
+INCLUDE("${LIBSSH2_INCLUDE_DIR}/libssh2.cmake" OPTIONAL)
+
+FIND_PACKAGE(ICONV QUIET)
+IF(ICONV_FOUND AND NOT LIBGIT2_ICONV_FOUND_REPORTED)
+	INCLUDE_DIRECTORIES(${ICONV_INCLUDE_DIR})
+	ADD_DEFINITIONS(-DGIT_USE_ICONV)
+	MESSAGE(STATUS "Found iconv: ${ICONV_INCLUDE_DIR}/iconv.h")
+	SET(LIBGIT2_ICONV_FOUND_REPORTED TRUE CACHE INTERNAL "" FORCE)
+ENDIF()
 
 INCLUDE(CheckLibraryExists)
-INCLUDE(AddCFlagIfSupported)
+CHECK_LIBRARY_EXISTS(rt clock_gettime "time.h" HAVE_LIBRT)
 
-# Build options
-#
-OPTION( SONAME				"Set the (SO)VERSION of the target"		ON  )
-OPTION( BUILD_SHARED_LIBS	"Build Shared Library (OFF for Static)"	ON  )
-OPTION( THREADSAFE			"Build libgit2 as threadsafe"			OFF )
-OPTION( BUILD_CLAR			"Build Tests using the Clar suite"		ON  )
-OPTION( BUILD_EXAMPLES		"Build library usage example apps"		OFF )
-OPTION( TAGS				"Generate tags"							OFF )
-OPTION( PROFILE				"Generate profiling information"		OFF )
-OPTION( ENABLE_TRACE		"Enables tracing support"				OFF )
-OPTION( LIBGIT2_FILENAME	"Name of the produced binary"			OFF )
+##################################################################################################################
+## Preprocessor definitions
 
-OPTION( ANDROID				"Build for android NDK"	 				OFF )
+ADD_DEFINITIONS(-DGIT_SSH -DGIT_SSL -DOPENSSL_SHA1 -D_FILE_OFFSET_BITS=64)
 
-OPTION( USE_ICONV			"Link with and use iconv library" 		OFF )
-OPTION( USE_SSH				"Link with libssh to enable SSH support" ON )
-OPTION( VALGRIND			"Configure build for valgrind"			OFF )
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	SET( USE_ICONV ON )
+IF (WIN32)
+	ADD_DEFINITIONS(-DWIN32 -D_WIN32_WINNT=0x0501 -DGIT_WINHTTP)
 ENDIF()
 
 IF(MSVC)
-	# This option is only available when building with MSVC. By default, libgit2
-	# is build using the cdecl calling convention, which is useful if you're
-	# writing C. However, the CLR and Win32 API both expect stdcall.
-	#
-	# If you are writing a CLR program and want to link to libgit2, you'll want
-	# to turn this on by invoking CMake with the "-DSTDCALL=ON" argument.
-	OPTION( STDCALL			"Build libgit2 with the __stdcall convention"	OFF  )
-
-	# This option must match the settings used in your program, in particular if you
-	# are linking statically
-	OPTION( STATIC_CRT		"Link the static CRT libraries"	ON  )
-
-	# By default, libgit2 is built with WinHTTP.  To use the built-in
-	# HTTP transport, invoke CMake with the "-DWINHTTP=OFF" argument.
-	OPTION( WINHTTP			"Use Win32 WinHTTP routines"	ON  )
-
 	ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)
 	ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
 	ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
 ENDIF()
 
-# This variable will contain the libraries we need to put into
-# libgit2.pc's Requires.private. That is, what we're linking to or
-# what someone who's statically linking us needs to link to.
-SET(LIBGIT2_PC_REQUIRES "")
-# This will be set later if we use the system's http-parser library or
-# use iconv (OSX) and will be written to the Libs.private field in the
-# pc file.
-SET(LIBGIT2_PC_LIBS "")
-
-# Installation paths
-#
-SET(BIN_INSTALL_DIR bin CACHE PATH "Where to install binaries to.")
-SET(LIB_INSTALL_DIR lib CACHE PATH "Where to install libraries to.")
-SET(INCLUDE_INSTALL_DIR include CACHE PATH "Where to install headers to.")
-
-FUNCTION(TARGET_OS_LIBRARIES target)
-	IF(WIN32)
-		TARGET_LINK_LIBRARIES(${target} ws2_32)
-	ELSEIF(CMAKE_SYSTEM_NAME MATCHES "(Solaris|SunOS)")
-		TARGET_LINK_LIBRARIES(${target} socket nsl)
-		SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} -lsocket -lnsl" PARENT_SCOPE)
-	ENDIF()
-	CHECK_LIBRARY_EXISTS(rt clock_gettime "time.h" NEED_LIBRT)
-	IF(NEED_LIBRT)
-		TARGET_LINK_LIBRARIES(${target} rt)
-		SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} -lrt" PARENT_SCOPE)
-	ENDIF()
-
-	IF(THREADSAFE)
-		TARGET_LINK_LIBRARIES(${target} ${CMAKE_THREAD_LIBS_INIT})
-	ENDIF()
-ENDFUNCTION()
-
-# For the MSVC IDE, this function splits up the source files like windows
-# explorer does. This is esp. useful with the libgit2_clar project, were
-# usually 2 or more files share the same name.  Sadly, this file grouping
-# is a per-directory option in cmake and not per-target, resulting in
-# empty virtual folders "tests" for the git2.dll
-FUNCTION(MSVC_SPLIT_SOURCES target)
-	IF(MSVC_IDE)
-		GET_TARGET_PROPERTY(sources ${target} SOURCES)
-		FOREACH(source ${sources})
-			IF(source MATCHES ".*/")
-				STRING(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}/ "" rel ${source})
-				IF(rel)
-					STRING(REGEX REPLACE "/([^/]*)$" "" rel ${rel})
-					IF(rel)
-						STRING(REPLACE "/" "\\\\" rel ${rel})
-						SOURCE_GROUP(${rel} FILES ${source})
-					ENDIF()
-				ENDIF()
-			ENDIF()
-		ENDFOREACH()
-	ENDIF()
-ENDFUNCTION()
-
-FILE(STRINGS "include/git2/version.h" GIT2_HEADER REGEX "^#define LIBGIT2_VERSION \"[^\"]*\"$")
-
-STRING(REGEX REPLACE "^.*LIBGIT2_VERSION \"([0-9]+).*$" "\\1" LIBGIT2_VERSION_MAJOR "${GIT2_HEADER}")
-STRING(REGEX REPLACE "^.*LIBGIT2_VERSION \"[0-9]+\\.([0-9]+).*$" "\\1" LIBGIT2_VERSION_MINOR  "${GIT2_HEADER}")
-STRING(REGEX REPLACE "^.*LIBGIT2_VERSION \"[0-9]+\\.[0-9]+\\.([0-9]+).*$" "\\1" LIBGIT2_VERSION_REV "${GIT2_HEADER}")
-SET(LIBGIT2_VERSION_STRING "${LIBGIT2_VERSION_MAJOR}.${LIBGIT2_VERSION_MINOR}.${LIBGIT2_VERSION_REV}")
-
-FILE(STRINGS "include/git2/version.h" GIT2_HEADER_SOVERSION REGEX "^#define LIBGIT2_SOVERSION [0-9]+$")
-STRING(REGEX REPLACE "^.*LIBGIT2_SOVERSION ([0-9]+)$" "\\1" LIBGIT2_SOVERSION "${GIT2_HEADER_SOVERSION}")
-
-# Find required dependencies
-INCLUDE_DIRECTORIES(src include)
-
-IF (WIN32 AND WINHTTP AND NOT MINGW)
-	ADD_DEFINITIONS(-DGIT_WINHTTP)
-	INCLUDE_DIRECTORIES(deps/http-parser)
-	FILE(GLOB SRC_HTTP deps/http-parser/*.c deps/http-parser/*.h)
-ELSE ()
-	IF (NOT AMIGA)
-		FIND_PACKAGE(OpenSSL)
-	ENDIF ()
-
-	FIND_PACKAGE(HTTP_Parser)
-	IF (HTTP_PARSER_FOUND AND HTTP_PARSER_VERSION_MAJOR EQUAL 2)
-		INCLUDE_DIRECTORIES(${HTTP_PARSER_INCLUDE_DIRS})
-		LINK_LIBRARIES(${HTTP_PARSER_LIBRARIES})
-		SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} -lhttp_parser")
-	ELSE()
-		MESSAGE(STATUS "http-parser was not found or is too old; using bundled 3rd-party sources.")
-		INCLUDE_DIRECTORIES(deps/http-parser)
-		FILE(GLOB SRC_HTTP deps/http-parser/*.c deps/http-parser/*.h)
-	ENDIF()
-ENDIF()
-
-# Specify sha1 implementation
-IF (WIN32 AND NOT MINGW AND NOT SHA1_TYPE STREQUAL "builtin")
-	ADD_DEFINITIONS(-DWIN32_SHA1)
-	FILE(GLOB SRC_SHA1 src/hash/hash_win32.c)
-ELSEIF (OPENSSL_FOUND AND NOT SHA1_TYPE STREQUAL "builtin")
-	ADD_DEFINITIONS(-DOPENSSL_SHA1)
-	IF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-		SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} -lssl")
-	ELSE()
-		SET(LIBGIT2_PC_REQUIRES "${LIBGIT2_PC_REQUIRES} openssl")
-	ENDIF ()
-ELSE()
-	FILE(GLOB SRC_SHA1 src/hash/hash_generic.c)
-ENDIF()
-
-# Enable tracing
-IF (ENABLE_TRACE STREQUAL "ON")
-	ADD_DEFINITIONS(-DGIT_TRACE)
-ENDIF()
-
-# Include POSIX regex when it is required
-IF(WIN32 OR AMIGA OR ANDROID OR CMAKE_SYSTEM_NAME MATCHES "(Solaris|SunOS)")
-	INCLUDE_DIRECTORIES(deps/regex)
-	SET(SRC_REGEX deps/regex/regex.c)
-ENDIF()
-
-# Optional external dependency: zlib
-FIND_PACKAGE(ZLIB)
-IF (ZLIB_FOUND)
-	INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
-	LINK_LIBRARIES(${ZLIB_LIBRARIES})
-	IF(APPLE OR CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-		SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} -lz")
-	ELSE()
-		SET(LIBGIT2_PC_REQUIRES "${LIBGIT2_PC_REQUIRES} zlib")
-	ENDIF()
-ELSE()
-	MESSAGE(STATUS "zlib was not found; using bundled 3rd-party sources." )
-	INCLUDE_DIRECTORIES(deps/zlib)
-	ADD_DEFINITIONS(-DNO_VIZ -DSTDC -DNO_GZIP)
-	FILE(GLOB SRC_ZLIB deps/zlib/*.c deps/zlib/*.h)
-ENDIF()
-
-# Optional external dependency: libssh2
-IF (USE_SSH)
-	FIND_PACKAGE(LIBSSH2)
-ENDIF()
-IF (LIBSSH2_FOUND)
-	ADD_DEFINITIONS(-DGIT_SSH)
-	INCLUDE_DIRECTORIES(${LIBSSH2_INCLUDE_DIR})
-	SET(LIBGIT2_PC_REQUIRES "${LIBGIT2_PC_REQUIRES} libssh2")
-	SET(SSH_LIBRARIES ${LIBSSH2_LIBRARIES})
-ENDIF()
-
-# Optional external dependency: iconv
-IF (USE_ICONV)
-	FIND_PACKAGE(Iconv)
-ENDIF()
-IF (ICONV_FOUND)
-	ADD_DEFINITIONS(-DGIT_USE_ICONV)
-	INCLUDE_DIRECTORIES(${ICONV_INCLUDE_DIR})
-	SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} ${ICONV_LIBRARIES}")
-ENDIF()
-
-# Platform specific compilation flags
-IF (MSVC)
-
-	STRING(REPLACE "/Zm1000" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-
-	# /GF - String pooling
-	# /MP - Parallel build
-	SET(CMAKE_C_FLAGS "/GF /MP /nologo ${CMAKE_C_FLAGS}")
-
-	IF (STDCALL)
-		# /Gz - stdcall calling convention
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Gz")
-	ENDIF ()
-
-	IF (STATIC_CRT)
-		SET(CRT_FLAG_DEBUG "/MTd")
-		SET(CRT_FLAG_RELEASE "/MT")
-	ELSE()
-		SET(CRT_FLAG_DEBUG "/MDd")
-		SET(CRT_FLAG_RELEASE "/MD")
-	ENDIF()
-
-	# /Zi - Create debugging information
-	# /Od - Disable optimization
-	# /D_DEBUG - #define _DEBUG
-	# /MTd - Statically link the multithreaded debug version of the CRT
-	# /MDd - Dynamically link the multithreaded debug version of the CRT
-	# /RTC1 - Run time checks
-	SET(CMAKE_C_FLAGS_DEBUG "/Zi /Od /D_DEBUG /RTC1 ${CRT_FLAG_DEBUG}")
-
-	# /DNDEBUG - Disables asserts
-	# /MT - Statically link the multithreaded release version of the CRT
-	# /MD - Dynamically link the multithreaded release version of the CRT
-	# /O2 - Optimize for speed
-	# /Oy - Enable frame pointer omission (FPO) (otherwise CMake will automatically turn it off)
-	# /GL - Link time code generation (whole program optimization)
-	# /Gy - Function-level linking
-	SET(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy ${CRT_FLAG_RELEASE}")
-
-	# /Oy- - Disable frame pointer omission (FPO)
-	SET(CMAKE_C_FLAGS_RELWITHDEBINFO "/DNDEBUG /Zi /O2 /Oy- /GL /Gy ${CRT_FLAG_RELEASE}")
-
-	# /O1 - Optimize for size
-	SET(CMAKE_C_FLAGS_MINSIZEREL "/DNDEBUG /O1 /Oy /GL /Gy ${CRT_FLAG_RELEASE}")
-
-	# /DYNAMICBASE - Address space load randomization (ASLR)
-	# /NXCOMPAT - Data execution prevention (DEP)
-	# /LARGEADDRESSAWARE - >2GB user address space on x86
-	# /VERSION - Embed version information in PE header
-	SET(CMAKE_EXE_LINKER_FLAGS "/DYNAMICBASE /NXCOMPAT /LARGEADDRESSAWARE /VERSION:${LIBGIT2_VERSION_MAJOR}.${LIBGIT2_VERSION_MINOR}")
-
-	# /DEBUG - Create a PDB
-	# /LTCG - Link time code generation (whole program optimization)
-	# /OPT:REF /OPT:ICF - Fold out duplicate code at link step
-	# /INCREMENTAL:NO - Required to use /LTCG
-	# /DEBUGTYPE:cv,fixup - Additional data embedded in the PDB (requires /INCREMENTAL:NO, so not on for Debug)
-	SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
-	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "/RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO")
-	SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
-	SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "/RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO")
-
-	# Same linker settings for DLL as EXE
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-	SET(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
-	SET(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-	SET(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
-	SET(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}")
-
-	SET(WIN_RC "src/win32/git2.rc")
-
-   # Precompiled headers
-
-ELSE ()
-	SET(CMAKE_C_FLAGS "-D_GNU_SOURCE -Wall -Wextra ${CMAKE_C_FLAGS}")
-
-	IF (CMAKE_SYSTEM_NAME MATCHES "(Solaris|SunOS)")
-		SET(CMAKE_C_FLAGS "-std=c99 -D_POSIX_C_SOURCE=200112L -D__EXTENSIONS__ -D_POSIX_PTHREAD_SEMANTICS ${CMAKE_C_FLAGS}")
-	ENDIF()
-
-	IF (WIN32 AND NOT CYGWIN)
-		SET(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
-	ENDIF ()
-
-	IF (MINGW) # MinGW always does PIC and complains if we tell it to
-		STRING(REGEX REPLACE "-fPIC" "" CMAKE_SHARED_LIBRARY_C_FLAGS "${CMAKE_SHARED_LIBRARY_C_FLAGS}")
-		# MinGW >= 3.14 uses the C99-style stdio functions
-		# automatically, but forks like mingw-w64 still want
-		# us to define this in order to use them
-		ADD_DEFINITIONS(-D__USE_MINGW_ANSI_STDIO=1)
-
-	ELSEIF (BUILD_SHARED_LIBS)
-		ADD_C_FLAG_IF_SUPPORTED(-fvisibility=hidden)
-
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-	ENDIF ()
-
-	ADD_C_FLAG_IF_SUPPORTED(-Wno-missing-field-initializers)
-	ADD_C_FLAG_IF_SUPPORTED(-Wstrict-aliasing=2)
-	ADD_C_FLAG_IF_SUPPORTED(-Wstrict-prototypes)
-	ADD_C_FLAG_IF_SUPPORTED(-Wdeclaration-after-statement)
-	ADD_C_FLAG_IF_SUPPORTED(-Wno-unused-const-variable)
-	ADD_C_FLAG_IF_SUPPORTED(-Wno-unused-function)
-
-	IF (APPLE) # Apple deprecated OpenSSL
-		ADD_C_FLAG_IF_SUPPORTED(-Wno-deprecated-declarations)
-	ENDIF()
-
-	IF (PROFILE)
-		SET(CMAKE_C_FLAGS "-pg ${CMAKE_C_FLAGS}")
-		SET(CMAKE_EXE_LINKER_FLAGS "-pg ${CMAKE_EXE_LINKER_FLAGS}")
-	ENDIF ()
-ENDIF()
-
-IF( NOT CMAKE_CONFIGURATION_TYPES )
-	# Build Debug by default
-	IF (NOT CMAKE_BUILD_TYPE)
-		SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-	ENDIF ()
-ELSE()
-	# Using a multi-configuration generator eg MSVC or Xcode
-	# that uses CMAKE_CONFIGURATION_TYPES and not CMAKE_BUILD_TYPE
-ENDIF()
-
-IF (OPENSSL_FOUND)
-  ADD_DEFINITIONS(-DGIT_SSL)
-  INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
-  SET(SSL_LIBRARIES ${OPENSSL_LIBRARIES})
-ENDIF()
-
-IF (THREADSAFE)
-	IF (NOT WIN32)
-		FIND_PACKAGE(Threads REQUIRED)
-	ENDIF()
-
-	ADD_DEFINITIONS(-DGIT_THREADS)
-ENDIF()
-
-ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64)
-
-# Collect sourcefiles
-FILE(GLOB SRC_H include/git2.h include/git2/*.h include/git2/sys/*.h)
-
-# On Windows use specific platform sources
-IF (WIN32 AND NOT CYGWIN)
-	ADD_DEFINITIONS(-DWIN32 -D_WIN32_WINNT=0x0501)
-	FILE(GLOB SRC_OS src/win32/*.c src/win32/*.h)
-ELSEIF (AMIGA)
-	ADD_DEFINITIONS(-DNO_ADDRINFO -DNO_READDIR_R -DNO_MMAP)
-ELSE()
-	IF (VALGRIND)
-		ADD_DEFINITIONS(-DNO_MMAP)
-	ENDIF()
-	FILE(GLOB SRC_OS src/unix/*.c src/unix/*.h)
-ENDIF()
-FILE(GLOB SRC_GIT2 src/*.c src/*.h src/transports/*.c src/transports/*.h src/xdiff/*.c src/xdiff/*.h)
-
-# Determine architecture of the machine
 IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
 	ADD_DEFINITIONS(-DGIT_ARCH_64)
-ELSEIF (CMAKE_SIZEOF_VOID_P EQUAL 4)
-	ADD_DEFINITIONS(-DGIT_ARCH_32)
 ELSE()
-	MESSAGE(FATAL_ERROR "Unsupported architecture")
+	ADD_DEFINITIONS(-DGIT_ARCH_32)
 ENDIF()
 
-# Compile and link libgit2
-ADD_LIBRARY(git2 ${SRC_H} ${SRC_GIT2} ${SRC_OS} ${SRC_ZLIB} ${SRC_HTTP} ${SRC_REGEX} ${SRC_SHA1} ${WIN_RC})
-TARGET_LINK_LIBRARIES(git2 ${SSL_LIBRARIES})
-TARGET_LINK_LIBRARIES(git2 ${SSH_LIBRARIES})
-TARGET_LINK_LIBRARIES(git2 ${ICONV_LIBRARIES})
-TARGET_OS_LIBRARIES(git2)
+##################################################################################################################
+## Compilation
 
-# Workaround for Cmake bug #0011240 (see http://public.kitware.com/Bug/view.php?id=11240)
-# Win64+MSVC+static libs = linker error
-IF(MSVC AND GIT_ARCH_64 AND NOT BUILD_SHARED_LIBS)
-  SET_TARGET_PROPERTIES(git2 PROPERTIES STATIC_LIBRARY_FLAGS "/MACHINE:x64")
-ENDIF()
-
-MSVC_SPLIT_SOURCES(git2)
-
-IF (SONAME)
-	SET_TARGET_PROPERTIES(git2 PROPERTIES VERSION ${LIBGIT2_VERSION_STRING})
-	SET_TARGET_PROPERTIES(git2 PROPERTIES SOVERSION ${LIBGIT2_SOVERSION})
-	IF (LIBGIT2_FILENAME)
-		ADD_DEFINITIONS(-DLIBGIT2_FILENAME=\"${LIBGIT2_FILENAME}\")
-		SET_TARGET_PROPERTIES(git2 PROPERTIES OUTPUT_NAME ${LIBGIT2_FILENAME})
-	ENDIF()
-ENDIF()
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libgit2.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libgit2.pc @ONLY)
-
-IF (MSVC_IDE)
-   # Precompiled headers
-   SET_TARGET_PROPERTIES(git2 PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h")
-   SET_SOURCE_FILES_PROPERTIES(src/win32/precompiled.c COMPILE_FLAGS "/Ycprecompiled.h")
-ENDIF ()
-
-# Install
-INSTALL(TARGETS git2
-	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-	ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+SET(WIN32_SOURCES
+	src/hash/hash_win32.c
+	src/transports/winhttp.c
+	src/win32/dir.c
+	src/win32/dir.h
+	src/win32/error.c
+	src/win32/error.h
+	src/win32/findfile.c
+	src/win32/findfile.h
+	src/win32/map.c
+	src/win32/mingw-compat.h
+	src/win32/msvc-compat.h
+	src/win32/posix.h
+	src/win32/posix_w32.c
+	src/win32/precompiled.c
+	src/win32/precompiled.h
+	src/win32/pthread.c
+	src/win32/pthread.h
+	src/win32/utf-conv.c
+	src/win32/utf-conv.h
+	src/win32/version.h
 )
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libgit2.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig )
-INSTALL(DIRECTORY include/git2 DESTINATION ${INCLUDE_INSTALL_DIR} )
-INSTALL(FILES include/git2.h DESTINATION ${INCLUDE_INSTALL_DIR} )
 
-# Tests
-IF (BUILD_CLAR)
-	FIND_PACKAGE(PythonInterp REQUIRED)
+ADD_LIBRARY(libgit2 STATIC EXCLUDE_FROM_ALL
+	${WIN32_SOURCES}
+	deps/http-parser/http_parser.c
+	deps/http-parser/http_parser.h
+	deps/regex/config.h
+	deps/regex/regcomp.c
+	deps/regex/regex.c
+	deps/regex/regex.h
+	deps/regex/regex_internal.c
+	deps/regex/regex_internal.h
+	deps/regex/regexec.c
+	include/git2/sys/commit.h
+	include/git2/sys/config.h
+	include/git2/sys/filter.h
+	include/git2/sys/index.h
+	include/git2/sys/odb_backend.h
+	include/git2/sys/refdb_backend.h
+	include/git2/sys/reflog.h
+	include/git2/sys/refs.h
+	include/git2/sys/repository.h
+	include/git2/attr.h
+	include/git2/blame.h
+	include/git2/blob.h
+	include/git2/branch.h
+	include/git2/buffer.h
+	include/git2/checkout.h
+	include/git2/clone.h
+	include/git2/commit.h
+	include/git2/common.h
+	include/git2/config.h
+	include/git2/cred_helpers.h
+	include/git2/diff.h
+	include/git2/errors.h
+	include/git2/filter.h
+	include/git2/graph.h
+	include/git2/ignore.h
+	include/git2/index.h
+	include/git2/indexer.h
+	include/git2/inttypes.h
+	include/git2/merge.h
+	include/git2/message.h
+	include/git2/net.h
+	include/git2/notes.h
+	include/git2/object.h
+	include/git2/odb.h
+	include/git2/odb_backend.h
+	include/git2/oid.h
+	include/git2/pack.h
+	include/git2/patch.h
+	include/git2/pathspec.h
+	include/git2/push.h
+	include/git2/refdb.h
+	include/git2/reflog.h
+	include/git2/refs.h
+	include/git2/refspec.h
+	include/git2/remote.h
+	include/git2/repository.h
+	include/git2/reset.h
+	include/git2/revert.h
+	include/git2/revparse.h
+	include/git2/revwalk.h
+	include/git2/signature.h
+	include/git2/stash.h
+	include/git2/status.h
+	include/git2/stdint.h
+	include/git2/strarray.h
+	include/git2/submodule.h
+	include/git2/sys
+	include/git2/tag.h
+	include/git2/threads.h
+	include/git2/trace.h
+	include/git2/transport.h
+	include/git2/tree.h
+	include/git2/types.h
+	include/git2/version.h
+	include/git2.h
+	src/transports/cred.c
+	src/transports/cred_helpers.c
+	src/transports/git.c
+	src/transports/http.c
+	src/transports/local.c
+	src/transports/smart.c
+	src/transports/smart.h
+	src/transports/smart_pkt.c
+	src/transports/smart_protocol.c
+	src/transports/ssh.c
+	src/unix/map.c
+	src/unix/posix.h
+	src/unix/realpath.c
+	src/xdiff/xdiff.h
+	src/xdiff/xdiffi.c
+	src/xdiff/xdiffi.h
+	src/xdiff/xemit.c
+	src/xdiff/xemit.h
+	src/xdiff/xhistogram.c
+	src/xdiff/xinclude.h
+	src/xdiff/xmacros.h
+	src/xdiff/xmerge.c
+	src/xdiff/xpatience.c
+	src/xdiff/xprepare.c
+	src/xdiff/xprepare.h
+	src/xdiff/xtypes.h
+	src/xdiff/xutils.c
+	src/xdiff/xutils.h
+	src/array.h
+	src/attr.c
+	src/attr.h
+	src/attr_file.c
+	src/attr_file.h
+	src/attrcache.h
+	src/bitvec.h
+	src/blame.c
+	src/blame.h
+	src/blame_git.c
+	src/blame_git.h
+	src/blob.c
+	src/blob.h
+	src/branch.c
+	src/branch.h
+	src/bswap.h
+	src/buf_text.c
+	src/buf_text.h
+	src/buffer.c
+	src/buffer.h
+	src/cache.c
+	src/cache.h
+	src/cc-compat.h
+	src/checkout.c
+	src/checkout.h
+	src/clone.c
+	src/commit.c
+	src/commit.h
+	src/commit_list.c
+	src/commit_list.h
+	src/common.h
+	src/config.c
+	src/config.h
+	src/config_cache.c
+	src/config_file.c
+	src/config_file.h
+	src/crlf.c
+	src/date.c
+	src/delta-apply.c
+	src/delta-apply.h
+	src/delta.c
+	src/delta.h
+	src/diff.c
+	src/diff.h
+	src/diff_driver.c
+	src/diff_driver.h
+	src/diff_file.c
+	src/diff_file.h
+	src/diff_patch.c
+	src/diff_patch.h
+	src/diff_print.c
+	src/diff_tform.c
+	src/diff_xdiff.c
+	src/diff_xdiff.h
+	src/errors.c
+	src/fetch.c
+	src/fetch.h
+	src/fetchhead.c
+	src/fetchhead.h
+	src/filebuf.c
+	src/filebuf.h
+	src/fileops.c
+	src/fileops.h
+	src/filter.c
+	src/filter.h
+	src/fnmatch.c
+	src/fnmatch.h
+	src/global.c
+	src/global.h
+	src/graph.c
+	src/hash
+	src/hash.c
+	src/hash.h
+	src/hashsig.c
+	src/hashsig.h
+	src/ident.c
+	src/ignore.c
+	src/ignore.h
+	src/index.c
+	src/index.h
+	src/indexer.c
+	src/iterator.c
+	src/iterator.h
+	src/khash.h
+	src/map.h
+	src/merge.c
+	src/merge.h
+	src/merge_file.c
+	src/merge_file.h
+	src/message.c
+	src/message.h
+	src/mwindow.c
+	src/mwindow.h
+	src/netops.c
+	src/netops.h
+	src/notes.c
+	src/notes.h
+	src/object.c
+	src/object.h
+	src/object_api.c
+	src/odb.c
+	src/odb.h
+	src/odb_loose.c
+	src/odb_pack.c
+	src/offmap.h
+	src/oid.c
+	src/oid.h
+	src/oidmap.h
+	src/pack-objects.c
+	src/pack-objects.h
+	src/pack.c
+	src/pack.h
+	src/path.c
+	src/path.h
+	src/pathspec.c
+	src/pathspec.h
+	src/pool.c
+	src/pool.h
+	src/posix.c
+	src/posix.h
+	src/pqueue.c
+	src/pqueue.h
+	src/push.c
+	src/push.h
+	src/refdb.c
+	src/refdb.h
+	src/refdb_fs.c
+	src/refdb_fs.h
+	src/reflog.c
+	src/reflog.h
+	src/refs.c
+	src/refs.h
+	src/refspec.c
+	src/refspec.h
+	src/remote.c
+	src/remote.h
+	src/repo_template.h
+	src/repository.c
+	src/repository.h
+	src/reset.c
+	src/revert.c
+	src/revparse.c
+	src/revwalk.c
+	src/revwalk.h
+	src/settings.c
+	src/sha1_lookup.c
+	src/sha1_lookup.h
+	src/signature.c
+	src/signature.h
+	src/sortedcache.c
+	src/sortedcache.h
+	src/stash.c
+	src/status.c
+	src/status.h
+	src/strmap.c
+	src/strmap.h
+	src/strnlen.h
+	src/submodule.c
+	src/submodule.h
+	src/sysdir.c
+	src/sysdir.h
+	src/tag.c
+	src/tag.h
+	src/thread-utils.c
+	src/thread-utils.h
+	src/trace.c
+	src/trace.h
+	src/transport.c
+	src/transports
+	src/tree-cache.c
+	src/tree-cache.h
+	src/tree.c
+	src/tree.h
+	src/tsort.c
+	src/unix
+	src/userdiff.h
+	src/util.c
+	src/util.h
+	src/vector.c
+	src/vector.h
+	src/win32
+	src/xdiff
+	src/zstream.c
+	src/zstream.h
+)
 
-	SET(CLAR_FIXTURES "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/")
-	SET(CLAR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tests")
-	SET(CLAR_RESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources" CACHE PATH "Path to test resources.")
-	ADD_DEFINITIONS(-DCLAR_FIXTURE_PATH=\"${CLAR_FIXTURES}\")
-	ADD_DEFINITIONS(-DCLAR_RESOURCES=\"${TEST_RESOURCES}\")
+SET_SOURCE_FILES_PROPERTIES(
+		deps/regex/regcomp.c
+		deps/regex/regex_internal.c
+		deps/regex/regexec.c
+	PROPERTIES
+		HEADER_FILE_ONLY TRUE
+)
 
-	INCLUDE_DIRECTORIES(${CLAR_PATH})
-	FILE(GLOB_RECURSE SRC_TEST ${CLAR_PATH}/*/*.c ${CLAR_PATH}/*/*.h)
-	SET(SRC_CLAR "${CLAR_PATH}/main.c" "${CLAR_PATH}/clar_libgit2.c" "${CLAR_PATH}/clar.c")
+IF(NOT WIN32)
+	SET_SOURCE_FILES_PROPERTIES(${WIN32_SOURCES} PROPERTIES HEADER_FILE_ONLY TRUE)
+ENDIF()
 
-	ADD_CUSTOM_COMMAND(
-		OUTPUT ${CLAR_PATH}/clar.suite
-		COMMAND ${PYTHON_EXECUTABLE} generate.py -f -xonline -xstress .
-		DEPENDS ${SRC_TEST}
-		WORKING_DIRECTORY ${CLAR_PATH}
-	)
+SET_TARGET_PROPERTIES(libgit2 PROPERTIES OUTPUT_NAME "git2")
+TARGET_LINK_LIBRARIES(libgit2 ${LIBSSH2_LIBRARIES} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES}
+	${ICONV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-	SET_SOURCE_FILES_PROPERTIES(
-		${CLAR_PATH}/clar.c
-		PROPERTIES OBJECT_DEPENDS ${CLAR_PATH}/clar.suite)
+IF(WIN32)
+	TARGET_LINK_LIBRARIES(libgit2 ws2_32 winhttp rpcrt4)
+ELSEIF(CMAKE_SYSTEM_NAME MATCHES "(Solaris|SunOS)")
+	TARGET_LINK_LIBRARIES(libgit2 socket nsl)
+ENDIF()
 
-	ADD_EXECUTABLE(libgit2_clar ${SRC_H} ${SRC_GIT2} ${SRC_OS} ${SRC_CLAR} ${SRC_TEST} ${SRC_ZLIB} ${SRC_HTTP} ${SRC_REGEX} ${SRC_SHA1})
-
-	TARGET_LINK_LIBRARIES(libgit2_clar ${SSL_LIBRARIES})
-	TARGET_LINK_LIBRARIES(libgit2_clar ${SSH_LIBRARIES})
-	TARGET_LINK_LIBRARIES(libgit2_clar ${ICONV_LIBRARIES})
-	TARGET_OS_LIBRARIES(libgit2_clar)
-	MSVC_SPLIT_SOURCES(libgit2_clar)
-
-	IF (MSVC_IDE)
-		# Precompiled headers
-		SET_TARGET_PROPERTIES(libgit2_clar PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h")
-	ENDIF ()
-
-	ENABLE_TESTING()
-	ADD_TEST(libgit2_clar libgit2_clar -ionline)
-ENDIF ()
-
-IF (TAGS)
-	FIND_PROGRAM(CTAGS ctags)
-	IF (NOT CTAGS)
-		MESSAGE(FATAL_ERROR "Could not find ctags command")
-	ENDIF ()
-
-	FILE(GLOB_RECURSE SRC_ALL *.[ch])
-
-	ADD_CUSTOM_COMMAND(
-		OUTPUT tags
-		COMMAND ${CTAGS} -a ${SRC_ALL}
-		DEPENDS ${SRC_ALL}
-	)
-	ADD_CUSTOM_TARGET(
-		do_tags ALL
-		DEPENDS tags
-	)
-ENDIF ()
-
-IF (BUILD_EXAMPLES)
-	ADD_SUBDIRECTORY(examples)
-ENDIF ()
+IF(HAVE_LIBRT)
+	TARGET_LINK_LIBRARIES(git2 rt)
+ENDIF()

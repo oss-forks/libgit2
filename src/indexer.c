@@ -5,8 +5,8 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/indexer.h"
-#include "git2/object.h"
+#include "../include/git2/indexer.h"
+#include "../include/git2/object.h"
 
 #include "common.h"
 #include "pack.h"

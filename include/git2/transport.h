@@ -12,7 +12,11 @@
 #include "types.h"
 
 #ifdef GIT_SSH
+#ifdef LIBSSH2_LIBSSH2_H
+#include LIBSSH2_LIBSSH2_H
+#else
 #include <libssh2.h>
+#endif
 #endif
 
 /**

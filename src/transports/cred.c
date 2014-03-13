@@ -5,9 +5,9 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2.h"
+#include "../../include/git2.h"
 #include "smart.h"
-#include "git2/cred_helpers.h"
+#include "../../include/git2/cred_helpers.h"
 
 int git_cred_has_username(git_cred *cred)
 {

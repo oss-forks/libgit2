@@ -1,4 +1,4 @@
-#include "git2/ignore.h"
+#include "../include/git2/ignore.h"
 #include "common.h"
 #include "ignore.h"
 #include "attrcache.h"

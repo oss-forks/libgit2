@@ -16,8 +16,8 @@
 #include "netops.h"
 #include "zstream.h"
 
-#include "git2/oid.h"
-#include "git2/pack.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/pack.h"
 
 #define GIT_PACK_WINDOW 10 /* number of objects to possibly delta against */
 #define GIT_PACK_DEPTH 50 /* max delta depth */

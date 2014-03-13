@@ -4,16 +4,16 @@
  * This file is part of libgit2, distributed under the GNU GPL v2 with
  * a Linking Exception. For full terms see the included COPYING file.
  */
-#include "git2.h"
-#include "git2/odb_backend.h"
+#include "../../include/git2.h"
+#include "../../include/git2/odb_backend.h"
 
 #include "smart.h"
-#include "refs.h"
-#include "repository.h"
-#include "push.h"
-#include "pack-objects.h"
-#include "remote.h"
-#include "util.h"
+#include "../refs.h"
+#include "../repository.h"
+#include "../push.h"
+#include "../pack-objects.h"
+#include "../remote.h"
+#include "../util.h"
 
 #define NETWORK_XFER_THRESHOLD (100*1024)
 /* The minimal interval between progress updates (in seconds). */

@@ -5,7 +5,7 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "map.h"
+#include "../map.h"
 #include <errno.h>
 
 #ifndef NO_MMAP

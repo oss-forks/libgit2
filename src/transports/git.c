@@ -5,9 +5,9 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2.h"
-#include "buffer.h"
-#include "netops.h"
+#include "../../include/git2.h"
+#include "../buffer.h"
+#include "../netops.h"
 
 #define OWNING_SUBTRANSPORT(s) ((git_subtransport *)(s)->parent.subtransport)
 

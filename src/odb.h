@@ -7,9 +7,9 @@
 #ifndef INCLUDE_odb_h__
 #define INCLUDE_odb_h__
 
-#include "git2/odb.h"
-#include "git2/oid.h"
-#include "git2/types.h"
+#include "../include/git2/odb.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/types.h"
 
 #include "vector.h"
 #include "cache.h"

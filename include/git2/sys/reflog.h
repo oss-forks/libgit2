@@ -7,9 +7,9 @@
 #ifndef INCLUDE_sys_git_reflog_h__
 #define INCLUDE_sys_git_reflog_h__
 
-#include "git2/common.h"
-#include "git2/types.h"
-#include "git2/oid.h"
+#include "../common.h"
+#include "../types.h"
+#include "../oid.h"
 
 GIT_BEGIN_DECL
 

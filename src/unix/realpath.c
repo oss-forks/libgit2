@@ -4,7 +4,7 @@
  * This file is part of libgit2, distributed under the GNU GPL v2 with
  * a Linking Exception. For full terms see the included COPYING file.
  */
-#include <git2/common.h>
+#include "../../include/git2/common.h"
 
 #ifdef __OpenBSD__
 
@@ -27,4 +27,6 @@ char *p_realpath(const char *pathname, char *resolved)
 	return NULL;
 }
 
+#else
+void * libgit2_realpath_dummy = &libgit2_realpath_dummy;
 #endif

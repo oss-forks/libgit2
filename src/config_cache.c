@@ -9,7 +9,7 @@
 #include "fileops.h"
 #include "repository.h"
 #include "config.h"
-#include "git2/config.h"
+#include "../include/git2/config.h"
 #include "vector.h"
 #include "filter.h"
 

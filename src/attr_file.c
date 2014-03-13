@@ -3,8 +3,8 @@
 #include "filebuf.h"
 #include "attr_file.h"
 #include "attrcache.h"
-#include "git2/blob.h"
-#include "git2/tree.h"
+#include "../include/git2/blob.h"
+#include "../include/git2/tree.h"
 #include "index.h"
 #include <ctype.h>
 

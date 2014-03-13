@@ -5,10 +5,10 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 #include "common.h"
-#include "git2/types.h"
-#include "git2/remote.h"
-#include "git2/net.h"
-#include "git2/transport.h"
+#include "../include/git2/types.h"
+#include "../include/git2/remote.h"
+#include "../include/git2/net.h"
+#include "../include/git2/transport.h"
 #include "path.h"
 
 typedef struct transport_definition {

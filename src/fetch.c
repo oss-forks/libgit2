@@ -5,10 +5,10 @@
  * a Linking Exception. For full terms see the included COPYING file.
  */
 
-#include "git2/oid.h"
-#include "git2/refs.h"
-#include "git2/revwalk.h"
-#include "git2/transport.h"
+#include "../include/git2/oid.h"
+#include "../include/git2/refs.h"
+#include "../include/git2/revwalk.h"
+#include "../include/git2/transport.h"
 
 #include "common.h"
 #include "remote.h"

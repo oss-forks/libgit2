@@ -6,10 +6,10 @@
  */
 
 #include "common.h"
-#include "git2/config.h"
-#include "git2/sys/config.h"
-#include "git2/types.h"
-#include "git2/index.h"
+#include "../include/git2/config.h"
+#include "../include/git2/sys/config.h"
+#include "../include/git2/types.h"
+#include "../include/git2/index.h"
 #include "buffer.h"
 #include "buf_text.h"
 #include "vector.h"
