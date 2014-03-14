@@ -200,6 +200,15 @@ static int update_head_to_remote(
 	return error;
 }
 
+int git_update_head_to_remote(
+		git_repository *repo,
+		git_remote *remote,
+		const git_signature *signature,
+		const char *reflog_message)
+{
+	return update_head_to_remote(repo, remote, signature, reflog_message);
+}
+
 static int update_head_to_branch(
 		git_repository *repo,
 		const char *remote_name,

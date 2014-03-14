@@ -202,6 +202,12 @@ GIT_EXTERN(int) git_clone_local_into(
 	int link,
 	const git_signature *signature);
 
+GIT_EXTERN(int) git_update_head_to_remote(
+		git_repository *repo,
+		git_remote *remote,
+		const git_signature *signature,
+		const char *reflog_message);
+
 /** @} */
 GIT_END_DECL
 #endif
