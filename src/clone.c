@@ -140,7 +140,8 @@ static int update_head_to_remote(
 		git_repository *repo,
 		git_remote *remote,
 		const git_signature *signature,
-		const char *reflog_message)
+		const char *reflog_message,
+		int is_update)
 {
 	int error = 0, found_branch = 0;
 	size_t refs_len;
@@ -184,7 +185,7 @@ static int update_head_to_remote(
 		git_buf_cstr(&branch))) < 0)
 		return error;
 
-	if (found_branch) {
+	if (!is_update && found_branch) {
 		error = update_head_to_new_branch(
 			repo,
 			remote_head_id,
@@ -206,7 +207,7 @@ int git_update_head_to_remote(
 		const git_signature *signature,
 		const char *reflog_message)
 {
-	return update_head_to_remote(repo, remote, signature, reflog_message);
+	return update_head_to_remote(repo, remote, signature, reflog_message, 1);
 }
 
 static int update_head_to_branch(
@@ -308,7 +309,7 @@ static int checkout_branch(git_repository *repo, git_remote *remote, const git_c
 				signature, reflog_message);
 	/* Point HEAD to the same ref as the remote's head */
 	else
-		error = update_head_to_remote(repo, remote, signature, reflog_message);
+		error = update_head_to_remote(repo, remote, signature, reflog_message, 0);
 
 	if (!error && should_checkout(repo, git_repository_is_bare(repo), co_opts))
 		error = git_checkout_head(repo, co_opts);
