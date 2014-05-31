@@ -189,6 +189,7 @@ ADD_LIBRARY(libgit2 STATIC EXCLUDE_FROM_ALL
 	src/attr.h
 	src/attr_file.c
 	src/attr_file.h
+	src/attrcache.c
 	src/attrcache.h
 	src/bitvec.h
 	src/blame.c
@@ -235,6 +236,7 @@ ADD_LIBRARY(libgit2 STATIC EXCLUDE_FROM_ALL
 	src/diff_patch.c
 	src/diff_patch.h
 	src/diff_print.c
+	src/diff_stats.c
 	src/diff_tform.c
 	src/diff_xdiff.c
 	src/diff_xdiff.h
