@@ -11,7 +11,7 @@
 #include "zstream.h"
 #include "blob.h"
 #include "delta.h"
-#include "git2/sys/diff.h"
+#include "../include/git2/sys/diff.h"
 
 typedef struct {
 	git_diff *diff;

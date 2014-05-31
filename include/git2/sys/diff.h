@@ -7,11 +7,11 @@
 #ifndef INCLUDE_sys_git_diff_h__
 #define INCLUDE_sys_git_diff_h__
 
-#include "git2/common.h"
-#include "git2/types.h"
-#include "git2/oid.h"
-#include "git2/diff.h"
-#include "git2/status.h"
+#include "../common.h"
+#include "../types.h"
+#include "../oid.h"
+#include "../diff.h"
+#include "../status.h"
 
 /**
  * @file git2/sys/diff.h
